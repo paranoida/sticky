@@ -9,6 +9,9 @@
 // Description: Makes an element on the page stick on the screen as you scroll
 //       It will only set the 'top' and 'position' of your element, you
 //       might need to adjust the width in some cases.
+//
+// IMPORTANT: modified by wimdu (fixed small bugs with resize and outerHeight)
+// http://github.com/paranoida/sticky
 
 (function($) {
   var defaults = {
@@ -18,7 +21,8 @@
       wrapperClassName: 'sticky-wrapper',
       center: false,
       getWidthFrom: '',
-      responsiveWidth: false
+      responsiveWidth: false,
+      outerHeight: true
     },
     $window = $(window),
     $document = $(document),
@@ -35,6 +39,8 @@
           elementTop = s.stickyWrapper.offset().top,
           etse = elementTop - s.topSpacing - extra;
 
+        s.stickyWrapper.css('min-height', s.stickyElement.outerHeight(s.outerHeight));
+
         if (scrollTop <= etse) {
           if (s.currentTop !== null) {
             s.stickyElement
@@ -45,7 +51,7 @@
           }
         }
         else {
-          var newTop = documentHeight - s.stickyElement.outerHeight()
+          var newTop = documentHeight - s.stickyElement.outerHeight(s.outerHeight)
             - s.topSpacing - s.bottomSpacing - scrollTop - extra;
           if (newTop < 0) {
             newTop = newTop + s.topSpacing;
@@ -84,7 +90,7 @@
           var stickyElement = $(this);
 
           var stickyId = stickyElement.attr('id');
-          var wrapperId = stickyId ? stickyId + '-' + defaults.wrapperClassName : defaults.wrapperClassName 
+          var wrapperId = stickyId ? stickyId + '-' + defaults.wrapperClassName : defaults.wrapperClassName
           var wrapper = $('<div></div>')
             .attr('id', stickyId + '-sticky-wrapper')
             .addClass(o.wrapperClassName);
@@ -99,7 +105,7 @@
           }
 
           var stickyWrapper = stickyElement.parent();
-          stickyWrapper.css('height', stickyElement.outerHeight());
+          stickyWrapper.css('min-height', stickyElement.outerHeight(o.outerHeight));
           sticked.push({
             topSpacing: o.topSpacing,
             bottomSpacing: o.bottomSpacing,
@@ -108,7 +114,8 @@
             stickyWrapper: stickyWrapper,
             className: o.className,
             getWidthFrom: o.getWidthFrom,
-            responsiveWidth: o.responsiveWidth
+            responsiveWidth: o.responsiveWidth,
+            outerHeight: o.outerHeight
           });
         });
       },
